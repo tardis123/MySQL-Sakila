@@ -113,14 +113,14 @@ SELECT	staff.first_name, staff.last_name, SUM(payment.amount)
 FROM	payment 
 INNER JOIN staff ON staff.staff_id = payment.staff_id
 WHERE	DATE_FORMAT(payment.payment_date, "%b-%Y") = "Aug-2005"
-GROUP BY staff.first_name, staff.last_name
+GROUP BY staff.first_name, staff.last_name;
 
 /* 6c. List each film and the number of actors who are listed for that film. 
 Use tables `film_actor` and `film`. Use inner join. */
 SELECT	film.title, COUNT(film_actor.actor_id)
 FROM	film
 INNER JOIN	film_actor ON film_actor.film_id = film.film_id
-GROUP BY	title
+GROUP BY	title;
 
 /* 6d. How many copies of the film `Hunchback Impossible` exist in the inventory system? */
 SELECT	COUNT(*)
@@ -130,7 +130,7 @@ WHERE	inventory.film_id IN
     SELECT	film_id
 	FROM	film
 	WHERE	film.title = "Hunchback Impossible"
-    )
+    );
 
 /* 6e. Using the tables payment and customer and the JOIN command, list the total paid by each customer. 
 List the customers alphabetically by last name. */
@@ -138,7 +138,7 @@ SELECT	customer.customer_id, customer.first_name, customer.last_name, SUM(amount
 FROM	customer
 INNER JOIN payment ON payment.customer_id = customer.customer_id
 GROUP BY	customer.customer_id, first_name, last_name
-ORDER BY	customer.last_name		
+ORDER BY	customer.last_name;	
 
 /* 7a. Use subqueries to display the titles of movies starting with the letters K and Q whose language is English.*/
 SELECT	film.title
@@ -149,7 +149,7 @@ AND		film.language_id =
 SELECT	language_id
 FROM	language
 WHERE	language.name = "English"
-)
+);
 
 /* 7b. Use subqueries to display all actors who appear in the film Alone Trip. */
 -- Solution 1 using INNER JOIN
@@ -162,7 +162,7 @@ SELECT	'1'
 FROM	film
 WHERE	film.film_id = film_actor.film_id
 AND		film.title = "Alone Trip"
-)	
+);	
 
 -- Solution 2 using subqueries only
 SELECT	first_name, last_name
@@ -178,7 +178,7 @@ WHERE	actor_id IN
 		WHERE	film.film_id = film_actor.film_id
 		AND		film.title = "Alone Trip"
 		)	
-	)
+	);
 
 /* 7c. Retrieve the names and email addresses of all Canadian customers. */
 SELECT	customer.first_name, customer.last_name, customer.email
@@ -186,7 +186,7 @@ FROM	customer
 INNER JOIN address ON address.address_id = customer.address_id
 INNER JOIN city ON city.city_id = address.city_id
 INNER JOIN country on country.country_id = city.country_id
-WHERE country.country = "Canada"	
+WHERE country.country = "Canada";
 
 
 /* 7d.  Identify all movies categorized as family films. */
@@ -194,7 +194,7 @@ SELECT	film.title, category.name
 FROM	film
 INNER JOIN film_category ON film_category.film_id = film.film_id
 INNER JOIN category ON category.category_id = film_category.category_id
-WHERE	category.name = "Family"
+WHERE	category.name = "Family";
 
 /* 7e. Display the most frequently rented movies in descending order. */
 SELECT	film.title, COUNT(*) AS "Total rent"
@@ -202,7 +202,7 @@ FROM	film
 INNER JOIN inventory ON inventory.film_id = film.film_id
 INNER JOIN rental ON rental.inventory_id = inventory.inventory_id
 GROUP BY film.title
-ORDER BY 2 DESC
+ORDER BY 2 DESC;
 
 /* 7f. Write a query to display how much business, in dollars, each store brought in. */
 SELECT	store.store_id, address.address, SUM(payment.amount)
@@ -211,14 +211,14 @@ INNER JOIN address ON address.address_id = store.address_id
 INNER JOIN inventory ON inventory.store_id = store.store_id
 INNER JOIN rental ON rental.inventory_id = inventory.inventory_id
 INNER JOIN payment ON payment.rental_id = rental.rental_id
-GROUP BY 1, 2
+GROUP BY 1, 2;
 
 /* 7g. Write a query to display for each store its store ID, city, and country. */
 SELECT store.store_id, city.city, country.country
 FROM store
 INNER JOIN address ON address.address_id = store.address_id
 INNER JOIN city ON city.city_id = address.city_id
-INNER JOIN country ON country.country_id = city.country_id
+INNER JOIN country ON country.country_id = city.country_id;
 
 
 /* 7h. List the top five genres in gross revenue in descending order. 
@@ -231,7 +231,7 @@ INNER JOIN inventory ON inventory.film_id = film.film_id
 INNER JOIN rental ON rental.inventory_id = inventory.inventory_id
 INNER JOIN payment ON payment.rental_id = rental.rental_id
 GROUP BY 1
-ORDER BY 2 DESC LIMIT 5
+ORDER BY 2 DESC LIMIT 5;
 
 /* 8a. In your new role as an executive, 
 you would like to have an easy way of viewing the Top five genres by gross revenue. 
@@ -246,11 +246,11 @@ INNER JOIN inventory ON inventory.film_id = film.film_id
 INNER JOIN rental ON rental.inventory_id = inventory.inventory_id
 INNER JOIN payment ON payment.rental_id = rental.rental_id
 GROUP BY 1
-ORDER BY 2 DESC LIMIT 5
+ORDER BY 2 DESC LIMIT 5;
 
 /* 8b. How would you display the view that you created in 8a? */
 SELECT	*
-FROM	revenue_top5
+FROM	revenue_top5;
 
 /* 8c. You find that you no longer need the view top_five_genres. Write a query to delete it. */
-DROP VIEW IF EXISTS revenue_top5
+DROP VIEW IF EXISTS revenue_top5;
