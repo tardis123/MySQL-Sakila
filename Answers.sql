@@ -109,7 +109,7 @@ INNER JOIN staff ON staff.address_id = address.address_id;
 
 /* 6b. Use `JOIN` to display the total amount rung up by each staff member in August of 2005. 
 Use tables `staff` and `payment`.*/
-SELECT	staff.first_name, staff.last_name, SUM(payment.amount)
+SELECT	staff.first_name, staff.last_name, SUM(payment.amount) "Total amount"
 FROM	payment 
 INNER JOIN staff ON staff.staff_id = payment.staff_id
 WHERE	DATE_FORMAT(payment.payment_date, "%b-%Y") = "Aug-2005"
@@ -117,7 +117,7 @@ GROUP BY staff.first_name, staff.last_name;
 
 /* 6c. List each film and the number of actors who are listed for that film. 
 Use tables `film_actor` and `film`. Use inner join. */
-SELECT	film.title, COUNT(film_actor.actor_id)
+SELECT	film.title, COUNT(film_actor.actor_id) "No. of actors"
 FROM	film
 INNER JOIN	film_actor ON film_actor.film_id = film.film_id
 GROUP BY	title;
@@ -134,7 +134,7 @@ WHERE	inventory.film_id IN
 
 /* 6e. Using the tables payment and customer and the JOIN command, list the total paid by each customer. 
 List the customers alphabetically by last name. */
-SELECT	customer.customer_id, customer.first_name, customer.last_name, SUM(amount)
+SELECT	customer.customer_id, customer.first_name, customer.last_name, SUM(amount) "Paid per customer"
 FROM	customer
 INNER JOIN payment ON payment.customer_id = customer.customer_id
 GROUP BY	customer.customer_id, first_name, last_name
@@ -197,7 +197,7 @@ INNER JOIN category ON category.category_id = film_category.category_id
 WHERE	category.name = "Family";
 
 /* 7e. Display the most frequently rented movies in descending order. */
-SELECT	film.title, COUNT(*) AS "Total rent"
+SELECT	film.title, COUNT(*) AS "Total rented"
 FROM	film
 INNER JOIN inventory ON inventory.film_id = film.film_id
 INNER JOIN rental ON rental.inventory_id = inventory.inventory_id
@@ -205,13 +205,29 @@ GROUP BY film.title
 ORDER BY 2 DESC;
 
 /* 7f. Write a query to display how much business, in dollars, each store brought in. */
-SELECT	store.store_id, address.address, SUM(payment.amount)
-FROM	store 
+/* Revenue is allocated to as store based on rentals, not on at which store the payment was registered
+   There's 5 payments not allocated to a rental so we need an additional query
+   and totalize the sums per query*/
+SELECT a.store_id, a.address, SUM(a.revenue) AS "Store Revenue"
+FROM
+(
+SELECT	store.store_id, address.address, SUM(payment.amount) AS revenue
+FROM	store
 INNER JOIN address ON address.address_id = store.address_id
 INNER JOIN inventory ON inventory.store_id = store.store_id
 INNER JOIN rental ON rental.inventory_id = inventory.inventory_id
 INNER JOIN payment ON payment.rental_id = rental.rental_id
-GROUP BY 1, 2;
+GROUP BY 1, 2
+UNION ALL
+SELECT	store.store_id, address.address, SUM(payment.amount) AS revenue
+FROM	store 
+INNER JOIN address ON address.address_id = store.address_id
+INNER JOIN staff ON staff.store_id = store.store_id
+INNER JOIN payment ON payment.staff_id = staff.staff_id
+WHERE payment.rental_id IS NULL	
+GROUP BY 1,2
+) as a
+GROUP BY 1,2;
 
 /* 7g. Write a query to display for each store its store ID, city, and country. */
 SELECT store.store_id, city.city, country.country
@@ -223,7 +239,7 @@ INNER JOIN country ON country.country_id = city.country_id;
 
 /* 7h. List the top five genres in gross revenue in descending order. 
 (Hint: you may need to use the following tables: category, film_category, inventory, payment, and rental.) */
-SELECT	category.name, SUM(payment.amount)
+SELECT	category.name, SUM(payment.amount) "Gross revenue"
 FROM	category
 INNER JOIN film_category ON film_category.category_id = category.category_id
 INNER JOIN film ON film.film_id = film_category.film_id
@@ -237,8 +253,8 @@ ORDER BY 2 DESC LIMIT 5;
 you would like to have an easy way of viewing the Top five genres by gross revenue. 
 Use the solution from the problem above to create a view. 
 If you haven't solved 7h, you can substitute another query to create a view. */
-CREATE VIEW revenue_top5 AS
-SELECT	category.name, SUM(payment.amount)
+CREATE OR REPLACE VIEW revenue_top5 AS
+SELECT	category.name, SUM(payment.amount) "Gross revenue"
 FROM	category
 INNER JOIN film_category ON film_category.category_id = category.category_id
 INNER JOIN film ON film.film_id = film_category.film_id
